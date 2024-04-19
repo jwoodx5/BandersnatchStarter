@@ -1,44 +1,94 @@
-from os import getenv
-
-from certifi import where
+from os import getenv, path
+from typing import Optional, Dict
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from MonsterLab import Monster
+from certifi import where
 from pandas import DataFrame
-from pymongo import MongoClient
-
-from dotenv import load_dotenv
-import os
-
-# Load the environment variables from .env file
-load_dotenv()
 
 
 class Database:
-     def __init__(self):
-        # Connect to the MongoDB database
-        self.client = MongoClient(getenv('MONGO_URI'))
-        self.db = self.client['bandersnatch']  # Database name
-        self.collection = self.db['monsters']  # Collection name
+    """
+    Database class for managing the MongoDB operations.
+    It allows seeding the database with default data,
+    resetting the database, counting documents, and converting the data to
+    a pandas DataFrame or an HTML table.
+    """
 
-    def seed(self, amount):
-        # This method will add `amount` of dummy data to the collection
-        dummy_data = [{'name': f'Monster_{i}'} for i in range(amount)]
-        self.collection.insert_many(dummy_data)
+    """
+    Loads the environment variables from .env file
+    """
+    load_dotenv()
+    
+    """Initializes the MongoDB client with the URL from environment variables
+    # and sets the SSL certificate file location.
+    It selects a database named 'Database
+    """
+    database = MongoClient(getenv("MONGO_URL"), tlsCAFile=where())['Database']
 
-    def reset(self):
-         # This method will delete all documents in the collection
-        self.collection.delete_many({})
+    def __init__(self, collection: str):
+        """
+        Initialize the Database with the specified collection.
+
+        :param collection: String name of the MongoDB collection to manage.
+        """
+        self.collection = self.database[collection]
+
+    def seed(self, amount=1000) -> bool:
+        """
+        Seed the database with a given amount of Monster data.
+
+        :param amount: The number of Monster data entries to create.
+        :return: Boolean indicating if the operation was acknowledged.
+        """
+        data = [Monster().to_dict() for _ in range(amount)]
+        return self.collection.insert_many(data).acknowledged
+
+    def reset(self) -> dict:
+        """
+        Reset the database by deleting all documents within the collection.
+
+        :return: The result of the delete operation.
+        """
+        return self.collection.delete_many({})
 
     def count(self) -> int:
-        # This method returns the number of documents in the collection
+        """
+        Count the number of documents in the collection.
+
+        :return: The number of documents.
+        """
         return self.collection.count_documents({})
 
-    def dataframe(self) -> DataFrame:
-        # This method returns all documents in the collection as a pandas DataFrame
-        data = list(self.collection.find({}, {'_id': False}))
-        return DataFrame(data)
+    def dataframe(self, query: Optional[Dict] = None) -> DataFrame:
+        """
+        Convert the documents in the collection to a pandas DataFrame.
+
+        :param query: Optional query to filter the documents.
+        :return: DataFrame with the collection's data.
+        """
+        # If no query is specified, the default is to fetch all documents
+        return DataFrame(
+            list(
+                self.collection.find(
+                    query or {}, {
+                        '_id': False})))
 
     def html_table(self) -> str:
-        # This method returns an HTML table representation of the DataFrame
-        df = self.dataframe()
-        return df.to_html() if not df.empty else None
+        """
+        Convert the collection's data to an HTML table.
+
+        :return: String containing an HTML table, or None if empty.
+        """
+        return self.dataframe().to_html()
+
+
+if __name__ == "__main__":
+    # This section is for testing the functionality of the Database class.
+    load_dotenv()
+    db_instance = Database('Database')
+    db_instance.reset()
+    db_instance.seed(1000)
+    print(db_instance.count())
+    print(db_instance.dataframe())
+    print(db_instance.html_table())

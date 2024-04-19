@@ -1,14 +1,14 @@
 from base64 import b64decode
 import os
 
-from Fortuna import random_int, random_float
+from random import randint, random
 from MonsterLab import Monster
 from flask import Flask, render_template, request
 from pandas import DataFrame
 
 from app.data import Database
-from app.graph import chart
 from app.machine import Machine
+from app.graph import chart
 
 SPRINT = 1
 APP = Flask(__name__)
@@ -24,11 +24,21 @@ def home():
     )
 
 
-@APP.route("/data")
+@APP.route("/data", methods=["GET", "POST"])
 def data():
     if SPRINT < 1:
         return render_template("data.html")
-    db = Database()
+    db = Database('Database')
+    return render_template(
+        "data.html",
+        count=db.count(),
+        table=db.html_table(),
+    )
+
+@APP.route("/reset", methods=["GET", "POST"])
+def reset():
+    db = Database('Database')
+    db.reset()
     return render_template(
         "data.html",
         count=db.count(),
@@ -40,7 +50,7 @@ def data():
 def view():
     if SPRINT < 2:
         return render_template("view.html")
-    db = Database()
+    db = Database("Database")
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     x_axis = request.values.get("x_axis") or options[1]
     y_axis = request.values.get("y_axis") or options[2]
@@ -50,7 +60,8 @@ def view():
         x=x_axis,
         y=y_axis,
         target=target,
-    ).to_json()
+    ).to_json() 
+    
     return render_template(
         "view.html",
         options=options,
@@ -75,8 +86,8 @@ def model():
         machine.save(filepath)
     else:
         machine = Machine.open(filepath)
-    stats = [round(random_float(1, 250), 2) for _ in range(3)]
-    level = request.values.get("level", type=int) or random_int(1, 20)
+    stats = [round(uniform(1, 250), 2) for _ in range(3)]
+    level = request.values.get("level", type=int) or randint(1, 20)
     health = request.values.get("health", type=float) or stats.pop()
     energy = request.values.get("energy", type=float) or stats.pop()
     sanity = request.values.get("sanity", type=float) or stats.pop()
@@ -94,7 +105,6 @@ def model():
         prediction=prediction,
         confidence=f"{confidence:.2%}",
     )
-
 
 if __name__ == '__main__':
     APP.run()
