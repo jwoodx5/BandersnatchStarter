@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from MonsterLab import Monster
 from certifi import where
 from pandas import DataFrame
+# import os
 
 
 class Database:
@@ -15,14 +16,22 @@ class Database:
     a pandas DataFrame or an HTML table.
     """
 
-    """
-    Loads the environment variables from .env file
-    """
+    # Loads the environment variables from .env file
     load_dotenv()
-    
-    """Initializes the MongoDB client with the URL from environment variables
-    # and sets the SSL certificate file location.
-    It selects a database named 'Database
+
+    # # Get the MongoDB connection URL from environment variables
+    # mongo_url = os.getenv("MONGO_URL")
+
+    # # Connect to MongoDB
+    # client = MongoClient(mongo_url)
+
+    # # Test the connection by listing the available databases
+    # print("Available databases:", client.list_database_names())
+
+    """
+    Initializes the MongoDB client with the URL from environment variables
+    and sets the SSL certificate file location.
+    It selects a database named 'Database'
     """
     database = MongoClient(getenv("MONGO_URL"), tlsCAFile=where())['Database']
 
@@ -34,14 +43,17 @@ class Database:
         """
         self.collection = self.database[collection]
 
-    def seed(self, amount=1000) -> bool:
+    def seed(self, amount=1500) -> bool:
         """
         Seed the database with a given amount of Monster data.
 
         :param amount: The number of Monster data entries to create.
         :return: Boolean indicating if the operation was acknowledged.
+    
         """
+
         data = [Monster().to_dict() for _ in range(amount)]
+        print("Number of monsters to be inserted:", len(data))  # Print the length of the data list
         return self.collection.insert_many(data).acknowledged
 
     def reset(self) -> dict:
@@ -88,7 +100,7 @@ if __name__ == "__main__":
     load_dotenv()
     db_instance = Database('Database')
     db_instance.reset()
-    db_instance.seed(1000)
+    db_instance.seed(1500)
     print(db_instance.count())
     print(db_instance.dataframe())
     print(db_instance.html_table())
