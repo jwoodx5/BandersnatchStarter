@@ -33,7 +33,7 @@ class Database:
         # Set the collection
         self.collection = self.database[collection]
 
-    def seed(self, amount=2000) -> bool:
+    def seed(self, amount=1500) -> bool:
         """
         Seed the database with a given amount of Monster data.
 
@@ -81,47 +81,3 @@ class Database:
 
     if __name__ == '__main__':
         APP.run(debug=True)
-
-
-
-
-    
-    # class TestDatabase(unittest.TestCase):
-    # def setUp(self):
-    #     # Create a Database instance
-    #     self.db = Database('test_collection')
-
-    # def tearDown(self):
-    #     # Reset the database after each test
-    #     self.db.reset()
-
-    # def test_reset(self):
-    #     # Seed the database with some data
-    #     self.db.seed(amount=10)
-
-    #     # Check if there are documents in the collection before reset
-    #     count_before_reset = self.db.count()
-    #     self.assertTrue(count_before_reset > 0)
-
-    #     # Reset the database
-    #     self.db.reset()
-
-        # Check if the collection is empty after reset
-        # count_after_reset = self.db.count()
-        # self.assertEqual(count_after_reset, 0)
-
-
-# if __name__ == "__main__":
-    # Run the tests if this file is executed directly
-    # unittest.main()
-
-
-# if __name__ == "__main__":
-#     # This section is for testing the functionality of the Database class.
-#     load_dotenv()
-#     db_instance = Database('Database')
-#     db_instance.reset()
-#     db_instance.seed(1500)
-#     print(db_instance.count())
-#     print(db_instance.dataframe())
-#     print(db_instance.html_table())

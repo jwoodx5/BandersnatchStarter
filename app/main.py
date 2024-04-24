@@ -39,8 +39,6 @@ def data():
 def reset():
     db = Database('Database')
     db.reset()
-    # Seed the database with new data after resetting
-    db.seed(2000)  # Adjust the number of monsters as needed
     return render_template(
         "data.html",
         count=db.count(),
