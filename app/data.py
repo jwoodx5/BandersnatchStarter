@@ -40,7 +40,6 @@ class Database:
         :param amount: The number of Monster data entries to create.
         :return: Boolean indicating if the operation was acknowledged.
         """
-
         data = [Monster().to_dict() for _ in range(amount)]
         return self.collection.insert_many(data).acknowledged
 
@@ -77,7 +76,29 @@ class Database:
 
         :return: String containing an HTML table, or None if empty.
         """
-        return self.dataframe().to_html()    
+        return self.dataframe().to_html()
+
+    def save_function(self, func_name: str, js_code: str):
+        """
+        Save a JavaScript function in MongoDB.
+
+        :param func_name: The name of the function to store.
+        :param js_code: The JavaScript code as a string.
+        :return: Result of the operation.
+        """
+        self.database.system.js.save({
+            "_id": func_name,
+            "value": self.database.eval(f"function() {{ {js_code} }}")
+        })
+
+    def delete_function(self, func_name: str):
+        """
+        Delete a JavaScript function from MongoDB.
+
+        :param func_name: The name of the function to delete.
+        :return: Result of the delete operation.
+        """
+        return self.database.system.js.delete_one({"_id": func_name})    
 
     if __name__ == '__main__':
         APP.run(debug=True)
