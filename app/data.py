@@ -1,10 +1,11 @@
 from os import getenv, path
+from dotenv import load_dotenv
 from typing import Optional, Dict
 from pymongo import MongoClient
-from dotenv import load_dotenv
-from MonsterLab import Monster
 from certifi import where
 from pandas import DataFrame
+from MonsterLab import Monster
+
 
 class Database:
     """
