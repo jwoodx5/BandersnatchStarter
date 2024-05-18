@@ -6,11 +6,17 @@ from MonsterLab import Monster
 from flask import Flask, render_template, request
 from pandas import DataFrame
 
-from app.data import Database
-from app.machine import Machine
-from app.graph import chart
+import pandas as pd
+from random import uniform
 
-SPRINT = 1
+
+
+from app.data import Database
+from app.graph import chart
+from app.machine import Machine
+
+
+SPRINT = 2
 APP = Flask(__name__)
 
 
@@ -50,20 +56,19 @@ def reset():
 def view():
     if SPRINT < 2:
         return render_template("view.html")
-    db = Database("Database")
+    db = Database('Database')
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
-    x_axis = request.values.get("x_axis") or options[1]
-    y_axis = request.values.get("y_axis") or options[2]
-    target = request.values.get("target") or options[4]
-    graph = chart(
+    x_axis = request.values.get("x_axis", default=options[1])
+    y_axis = request.values.get("y_axis", default=options[2])
+    target = request.values.get("target", default=options[4])
+    graph= chart(
         df=db.dataframe(),
         x=x_axis,
         y=y_axis,
         target=target,
-    ).to_json() 
-    
+    ).to_json()
     return render_template(
-        "view.html",
+        'view.html',
         options=options,
         x_axis=x_axis,
         y_axis=y_axis,
@@ -71,7 +76,7 @@ def view():
         count=db.count(),
         graph=graph,
     )
-
+    
 
 @APP.route("/model", methods=["GET", "POST"])
 def model():
@@ -107,4 +112,4 @@ def model():
     )
 
 if __name__ == '__main__':
-    APP.run()
+    APP.run(debug=True)
