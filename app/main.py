@@ -9,14 +9,12 @@ from pandas import DataFrame
 import pandas as pd
 from random import uniform
 
-
-
 from app.data import Database
 from app.graph import chart
 from app.machine import Machine
 
 
-SPRINT = 2
+SPRINT = 3
 APP = Flask(__name__)
 
 
@@ -82,7 +80,7 @@ def view():
 def model():
     if SPRINT < 3:
         return render_template("model.html")
-    db = Database()
+    db = Database('Database')
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     filepath = os.path.join("app", "model.joblib")
     if not os.path.exists(filepath):
@@ -99,6 +97,7 @@ def model():
     prediction, confidence = machine(DataFrame(
         [dict(zip(options, (level, health, energy, sanity)))]
     ))
+    formatted_confidence = f"{confidence[0]:.2%}"  
     info = machine.info()
     return render_template(
         "model.html",
@@ -108,7 +107,7 @@ def model():
         energy=energy,
         sanity=sanity,
         prediction=prediction,
-        confidence=f"{confidence:.2%}",
+        confidence=formatted_confidence,
     )
 
 if __name__ == '__main__':
