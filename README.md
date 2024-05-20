@@ -1,6 +1,4 @@
-# Bandersnatch Project
-
-A web application with MongoDB and Flask, featuring dynamic data visualizations using Altair and real-time predictive analytics.
+# Bandersnatch Project A web application with MongoDB and Flask, featuring dynamic data visualizations using Altair and real-time predictive analytics.
 
 [Deployed App](https://bandersnatch.herokuapp.com)
 
